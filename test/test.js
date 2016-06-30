@@ -93,6 +93,26 @@ module.exports.testInitFrame = function(t) {
 };
 
 
+module.exports.testLengthInDifferentChunk = function(t) {
+  var consumer = new MjpegConsumer();
+  var buf = new Buffer("Content-Length: " + IMG.length + "\n\n");
+  var fhalfImg = new Buffer(500);
+  var shalfImg = new Buffer(IMG.length - 500);
+
+  IMG.copy(fhalfImg, 0, 0, fhalfImg.length);
+  IMG.copy(shalfImg, 0, 500);
+
+  consumer.on('data', function(chunk) {
+      t.deepEqual(chunk, IMG);
+      t.done();
+  });
+  
+  consumer.write(buf);
+  consumer.write(fhalfImg);
+  consumer.write(shalfImg);
+};
+
+
 module.exports.testSplitImage = function(t) {
   var consumer = new MjpegConsumer();
   var buf = new Buffer("Content-Length: " + IMG.length + "\n\n");
